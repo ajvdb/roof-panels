@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<head>
+<title>Sloping Roof Pannel Calculator</title>
+
+<style>
+@media print { 
+   html, body {
+      height:100vh; 
+      margin: 0 !important; 
+      padding: 0 !important;
+      overflow: hidden;
+   }
+   
+   #controls {
+      display: none !important;
+   }
+}   
+
+   ul {
+      list-style-type: none;
+      margin: 10;
+      padding: 0;
+   }
+   
+   li {
+       padding: 10px;
+   }
+
+</style>
+
+</head>
+<body>
+<div id='controls' class='controls'>
+<ul>
+<li>
+<label id='lb_base_a' for='BaseA'>Width of Base for Side A</label><br/>
+<input id='BaseA' />
+</li>
+<li>
+<label id='lb_base_b' for='BaseB'>Width of Base for Side B</label><br/>
+<input id='BaseB' '/>
+</li>
+<li>
+<label id='lb_top_a' for='TopA'>Width of Top for Side A</label><br/>
+<input id='TopA' />
+</li>
+<li>
+<label id='lb_top_b' for='TopB'>Width of Top for Side B</label><br/>
+<input id='TopB' />
+</li>
+<li>
+<label id='lb_height' for='Height'>Height difference between Top and Base</label><br/>
+<input id='Height' />
+</li>
+<li>
+<button id='generate' onclick='genPanels()'>Generate</button>
+</li>
+</ul>
+</div>
+<svg xmlns:cc="http://creativecommons.org/ns#" xmlns:svg="http://www.w3.org/2000/svg"
+     xmlns="http://www.w3.org/2000/svg" version="1.1" width="250mm"   height="200mm"
+     preserveAspectRatio="xMinYMin slice" id="panels" xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:svgjs="http://svgjs.dev/svgjs" viewBox="0 0 250 200">
+<rect width="10" height="10" fill='none'/>
+</svg>
+
+<script>
+
+function drawSinglePanel(x_centre, y_centre, base, top, base_other, top_other, height){
+ 
+  x = Math.sqrt(Math.pow(height,2) + Math.pow((base_other - top_other)/2.0,2));
+  
+  x1 = x_centre - (top/2.0);
+  y1 = y_centre - (x/2.0);
+  
+  x2 = x_centre + (top/2.0);
+  y2 = y1;
+  
+  x3 = x_centre + (base/2.0);
+  y3 = y_centre + (x/2.0);
+  
+  x4 = x_centre - (base/2.0);
+  y4 = y3;
+  
+  c= ','
+  
+  x_text = Math.min(x1,x4)
+  
+  instr = '<polyline points="' + x1 + c + y1 + c + x2 + c + y2 + 
+                               c +x3 + c + y3 + c +x4 + c + y4 + 
+                               c + x1 + c + y1 + c + x2 + c + y2 +'" fill="none" stroke="black" stroke-linejoin="miter" stroke-width=".5"/>';
+  instr += '<text x="'+x_text+'" y="10" class="spec">Top Width = ' + top + '</text>'; 
+  instr += '<text x="'+x_text+'" y="20" class="spec">Base Width = ' + base + '</text>'; 
+  instr += '<text x="'+x_text+'" y="30" class="spec">Height = ' + height + '</text>'; 
+  
+  return instr;
+
+}
+
+
+function genPanels(){
+  // defined in svg element, with element absoulute width and height in mm, and viewBox same size
+  var viewWidth = 250;
+  var viewHeight = 200;
+  
+  // margin inside svg element
+  var left_margin = 10;
+  
+  // get centre of svg 
+  y_centre = ((viewHeight - 30)/2) + 30;
+  x_centre = viewWidth/2;
+  
+  // get center of separate panels
+  left_panel_centre = ((x_centre - left_margin)/2) + left_margin;
+  right_panel_centre = viewWidth - left_panel_centre;
+  
+  base_a = document.getElementById('BaseA').value
+  base_b = document.getElementById('BaseB').value
+  top_a =  document.getElementById('TopA').value
+  top_b =  document.getElementById('TopB').value
+  height = document.getElementById('Height').value
+  
+  msg ="Please ensure;\n";
+  is_error=false;
+  
+  if(isNaN(base_a) || base_a <= 0 ){
+   is_error = true;
+   msg = msg + "Base A has a value greater than zero entered. \n"
+  }    
+  if(isNaN(base_b) || base_b <= 0 ){
+   is_error = true;
+   msg = msg + "Base B has a value greater than zero entered. \n"
+  }  
+  if(isNaN(top_a) || top_a <= 0 ){
+   is_error = true;
+   msg = msg + "Top A has a value greater than zero entered. \n"
+  }  
+  if(isNaN(top_b) || top_b <= 0 ){
+   is_error = true;
+   msg = msg + "Top A has a value greater than zero entered. \n"
+  }  
+  if(isNaN(height) || height <= 0 ){
+   is_error = true;
+   msg = msg + "Height has a value greater than zero entered. \n"
+  }  
+  
+  if(is_error){
+     alert(msg);
+  }else{
+     instr = '<style> .spec { font: bold 4pt sans-serif; } </style>';
+     instr += drawSinglePanel(left_panel_centre, y_centre, base_a, top_a, base_b, top_b, height);
+     instr += drawSinglePanel(right_panel_centre, y_centre, base_b, top_b, base_a, top_a, height); 
+     
+     document.getElementById('panels').innerHTML=instr;
+  }
+
+}
+</script>
+
+
+</body>
+</html>
